@@ -8,6 +8,10 @@ module AuthlogicShibboleth
 		end
 		
 		module Config
+		  def validate_shibboleth_id(value = nil)
+        config(:validate_shibboleth_id. value, true)
+      end
+      alias_method :validate_shibboleth_id=, :validate_shibboleth_id
 		end
 		
 		module Methods
@@ -15,8 +19,23 @@ module AuthlogicShibboleth
 				return if !klass.column_names.include?("shibboleth_id")
         
         klass.class_eval do
-          validates_uniqueness_of :shibboleth_id, :scope => validations_scope
+          if validate_shibboleth_id
+            validates_uniqueness_of :shibboleth_id, :scope => validations_scope
+          end
         end
+      end
+      
+      private
+      
+      def validate_shibboleth_id
+        return if errors.count > 0
+        
+        errors.add_to_base("Shibboleth ID does not match REMOTE_USER") if shibboleth_id != request.env['REMOTE_USER']
+      end
+      
+      def validate_shibboleth_id?
+        shibboleth_id_changed && !shibboleth_id.blank?
+      end
 		end
 	end
 end

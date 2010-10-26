@@ -12,39 +12,44 @@ module AuthlogicShibboleth
 				rw_config(:finx_by_shibboleth_id_method, value, :find_by_shibboleth_id)
 			end
 			alias_method :find_by_shibboleth_id_method=, :find_by_shibboleth_id_method
-			
-			def auto_register(value=true)
-        auto_register_value(value)
-      end
-      
-      def auto_register_value(value=nil)
-        rw_config(:auto_register,value,false)
-      end
-      
-      alias_method :auto_register=,:auto_register
 		end
 		
 		module Methods
 			def self.included(klass)
         klass.class_eval do
-          attr_reader :shibboleth_id
+          attr_accessor :shibboleth_id
         end
       end
       
-      def verify_session_with_env
-    	end
+      def credentials
+        if authenticating_with_shibboleth?
+          details = {}
+          details[:shibboleth_id] = send(login_field)
+          details
+        else
+          super
+        end
+		  end
+		  
+		  #Sets credentials based on value in REMOTE_USER
+		  def credentials=(value)
+		    #super
+		    self.shibboleth_id = request.env['REMOTE_USER']
+	    end
       
 			private
+			
+			def authenticating_with_shibboleth?
+			  !shibboleth_id.blank?
+		  end
 			
 			def find_by_shibboleth_id_method
 				self.class.find_by_shibboleth_id_method
 			end
 			
-			#This method always returns true
-			#this it should only be called when the proper
-			#environment variable has been set
+			#Return if our environment variable is set
 			def validate_by_shibboleth_id
-				true
+				request.env.has_key? 'REMOTE_USER'
 			end
 		end
 	end
