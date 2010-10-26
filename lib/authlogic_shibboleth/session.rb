@@ -25,6 +25,27 @@ module AuthlogicShibboleth
 		end
 		
 		module Methods
+			def self.included(klass)
+        klass.class_eval do
+          attr_reader :shibboleth_id
+        end
+      end
+      
+      def verify_session_with_env
+    	end
+      
+			private
+			
+			def find_by_shibboleth_id_method
+				self.class.find_by_shibboleth_id_method
+			end
+			
+			#This method always returns true
+			#this it should only be called when the proper
+			#environment variable has been set
+			def validate_by_shibboleth_id
+				true
+			end
 		end
 	end
 end

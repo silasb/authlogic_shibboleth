@@ -1,1 +1,20 @@
 = authlogic_shibboleth
+
+== Installation
+
+=== Rails 2
+
+Install the authlogic_shibboleth gem
+
+	$sudo gem install authlogic_shibboleth
+
+Add the gem dependency to your config:
+
+	config.gem 'authlogic_shibboleth'
+
+=== Rails 3
+
+Add the authlogic_shibboleth gem to your Gemfile
+
+	gem 'authlogic_shibboleth'
+
