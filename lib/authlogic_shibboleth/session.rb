@@ -17,7 +17,7 @@ module AuthlogicShibboleth
 		module Methods
 			def self.included(klass)
         klass.class_eval do
-          attr_reader :shibboleth_id
+          attr_accessor :shibboleth_id
           validate :validate_by_shibboleth_id, :if => :authenticating_with_shibboleth_id?
           
           #Because we are dealing with Shibboleth, the id comes to us via
@@ -31,7 +31,9 @@ module AuthlogicShibboleth
       #TODO: I am not sure this behavior is correct.
       def credentials
         if authenticating_with_shibboleth_id?
-          values = [:shibboleth_id]
+          details = []
+          details[:shibboleth_id] = shibboleth_id
+          details
         else
           super
         end
@@ -52,6 +54,9 @@ module AuthlogicShibboleth
 	    #TODO: create some type of auto-registration system
 	    #      if the id is not found
 		  def validate_by_shibboleth_id
+		    return if errors.count > 0
+		    
+		    #Find the shibboleth_id user in the database
 		    self.attempted_record = klass.send(find_by_shibboleth_id_method, shibboleth_id)
 		    
 		    unless self.attempted_record
